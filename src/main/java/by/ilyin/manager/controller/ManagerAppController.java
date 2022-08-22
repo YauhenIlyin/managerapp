@@ -1,11 +1,13 @@
 package by.ilyin.manager.controller;
 
 import by.ilyin.manager.controller.command.SessionRequestContent;
+import by.ilyin.manager.controller.command.project.ProjectCreateCommand;
 import by.ilyin.manager.controller.command.project.ProjectFindAllCommand;
 import by.ilyin.manager.entity.Project;
 import by.ilyin.manager.evidence.KeyWordsRequest;
 import by.ilyin.manager.util.AppBaseDataCore;
 import by.ilyin.manager.util.validator.impl.ProjectRequestValidator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,12 +31,19 @@ public class ManagerAppController {
     private ProjectFindAllCommand projectFindAllCommand;
     private ProjectRequestValidator projectRequestValidator;
     private AppBaseDataCore appBaseDataCore;
+    private ProjectCreateCommand projectCreateCommand;
 
-    public ManagerAppController(SessionRequestContent sessionRequestContent, ProjectFindAllCommand projectFindAllCommand, ProjectRequestValidator projectRequestValidator, AppBaseDataCore appBaseDataCore) {
+    @Autowired
+    public ManagerAppController(SessionRequestContent sessionRequestContent,
+                                ProjectFindAllCommand projectFindAllCommand,
+                                ProjectRequestValidator projectRequestValidator,
+                                AppBaseDataCore appBaseDataCore,
+                                ProjectCreateCommand projectCreateCommand) {
         this.sessionRequestContent = sessionRequestContent;
         this.projectFindAllCommand = projectFindAllCommand;
         this.projectRequestValidator = projectRequestValidator;
         this.appBaseDataCore = appBaseDataCore;
+        this.projectCreateCommand = projectCreateCommand;
     }
 
     @GetMapping("")
@@ -58,7 +67,36 @@ public class ManagerAppController {
         return "project_creation";
     }
 
-    
+    @PostMapping("")
+    public ModelAndView createProject(Model model,
+                                      @ModelAttribute("project") @Valid Project project,
+                                      BindingResult bindingResult) {
+        basicInitializeProjectModel(model);
+        ModelAndView mav;
+        System.out.println(bindingResult.hasErrors());
+        if (bindingResult.hasErrors()) {
+            mav = new ModelAndView("projects/new");
+            basicInitializeProjectModel(mav);
+            mav.addObject("project", project);
+            mav.setViewName("project_creation");
+            basicInitializeProjectModel(mav);
+//            mav.getModel().put("progLangs", appBaseDataCore.getProgrammingLanguageList());
+//            mav.getModel().put("appServers", appBaseDataCore.getApplicationServerList());
+//            mav.getModel().put("databases", appBaseDataCore.getDatabaseList());
+
+        } else {
+            System.out.println(2);
+            HashMap<String, Object> attributes = new HashMap<>();
+            attributes.put(KeyWordsRequest.PROJECT, project);
+            sessionRequestContent.setRequestAttributes(attributes);
+            projectCreateCommand.execute(sessionRequestContent);
+            mav = new ModelAndView("redirect:/projects");
+            basicInitializeProjectModel(mav);
+        }
+        return mav;
+    }
+
+
     private void basicInitializeProjectModel(ModelAndView model) {
         model.getModel().put("progLangs", appBaseDataCore.getProgrammingLanguageList());
         model.getModel().put("appServers", appBaseDataCore.getProgrammingLanguageList());
