@@ -2,12 +2,15 @@ package by.ilyin.manager.controller;
 
 import by.ilyin.manager.controller.command.SessionRequestContent;
 import by.ilyin.manager.controller.command.project.*;
+import by.ilyin.manager.controller.command.task.TaskFindAllCommand;
 import by.ilyin.manager.entity.Project;
+import by.ilyin.manager.entity.Task;
 import by.ilyin.manager.evidence.KeyWordsApp;
 import by.ilyin.manager.evidence.KeyWordsRequest;
 import by.ilyin.manager.util.AppBaseDataCore;
 import by.ilyin.manager.util.validator.ProjectEntityValidator;
 import by.ilyin.manager.util.validator.impl.ProjectRequestValidator;
+import by.ilyin.manager.util.validator.impl.TaskEntityValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -29,11 +32,13 @@ public class ManagerAppController {
     private SessionRequestContent sessionRequestContent;
     private ProjectRequestValidator projectRequestValidator;
     private ProjectEntityValidator projectEntityValidator;
+    private TaskEntityValidator taskEntityValidator;
     private ProjectFindAllCommand projectFindAllCommand;
     private ProjectCreateCommand projectCreateCommand;
     private ProjectFindByIdCommand projectFindByIdCommand;
     private ProjectUpdateCommand projectUpdateCommand;
     private ProjectDeleteCommand projectDeleteCommand;
+    private TaskFindAllCommand taskFindAllCommand;
 
     @Autowired
     public ManagerAppController(AppBaseDataCore appBaseDataCore, SessionRequestContent sessionRequestContent, ProjectRequestValidator projectRequestValidator, ProjectEntityValidator projectEntityValidator, ProjectFindAllCommand projectFindAllCommand, ProjectCreateCommand projectCreateCommand, ProjectFindByIdCommand projectFindByIdCommand, ProjectUpdateCommand projectUpdateCommand, ProjectDeleteCommand projectDeleteCommand) {
@@ -171,6 +176,29 @@ public class ManagerAppController {
             }
         }
         return pageResult;
+    }
+
+    @GetMapping("/{projectId}/tasks")
+    public String tasksPage(@PathVariable("projectId") long projectId,
+                            Project project,
+                            Model model,
+                            HttpServletRequest request) {
+        String resultPage;
+        sessionRequestContent.initialize(request);
+        sessionRequestContent.initializePage(request, taskEntityValidator);
+        sessionRequestContent.getRequestParameters().put(KeyWordsApp.PROJECT_ID_FIELD_NAME, "" + projectId);
+        taskFindAllCommand.execute(sessionRequestContent);
+        if (sessionRequestContent.isSuccessfulResult()) {
+            List<Task> tasks = (List) sessionRequestContent.getRequestAttributes().get(KeyWordsRequest.TASKS);
+            Page page = (Page) sessionRequestContent.getRequestAttributes().get(KeyWordsRequest.PAGE_PAGE);
+            model.addAttribute(KeyWordsRequest.TASKS, tasks);
+            model.addAttribute(KeyWordsRequest.PROJECT_ID, projectId);
+            model.addAttribute(KeyWordsRequest.PAGE_PAGE, page);
+            resultPage = "tasks/tasks";
+        } else {
+            resultPage = "redirect:/projects/{projectId}";
+        }
+        return resultPage;
     }
 
 
