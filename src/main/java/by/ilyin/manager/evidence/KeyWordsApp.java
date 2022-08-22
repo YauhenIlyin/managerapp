@@ -1,8 +1,11 @@
 package by.ilyin.manager.evidence;
 
 public class KeyWordsApp {
-    //todo refactoring names
 
+    private KeyWordsApp() {
+    }
+
+    //todo refactoring names
     public static final String USER_TABLE_NAME = "users";
     public static final String USERS_ID = "id";
     public static final String USERS_FIRST_NAME = "first_name";
@@ -25,7 +28,6 @@ public class KeyWordsApp {
     public static final String PROJECTS_FOREIGN_APPLICATION_SERVER_ID = "application_server_id";
     public static final String PROJECTS_FOREIGN_USER_CREATOR_ID = "user_id";
     public static final String PROJECTS_IS_DELETED = "is_deleted";
-
 
     public static final String PROGRAM_LANG_TABLE_NAME = "programming_languages";
     public static final String PROGRAM_LANG_ID = "id";
@@ -60,8 +62,14 @@ public class KeyWordsApp {
     public static final String PROJECT_DATABASE_FIELD_NAME = "database";
     public static final String PROJECTS_IS_DELETED_FIELD_NAME = "isDeleted";
 
+    public static final String TASK_ID_FIELD_NAME = "id";
+    public static final String TASK_NAME_FIELD_NAME = "name";
+    public static final String TASK_DESCRIPTION_FIELD_NAME = "description";
+    public static final String TASK_CREATION_DATE_TIME_FIELD_NAME = "creationDateTime";
+    public static final String TASK_CREATOR_FIELD_NAME = "creator";
+    public static final String TASK_PROJECT_FIELD_NAME = "project";
+    public static final String TASK_IS_DELETED_FIELD_NAME = "isDeleted";
+
     public static final String ROLE_ADMIN_VALUE = "ROLE_ADMIN";
     public static final String ROLE_USER_VALUE = "ROLE_USER";
-
-
 }

@@ -18,7 +18,6 @@ public class KeyWordsRequest {
     public static final String ASC_SORT_VALUE = "asc";
     public static final String DESC_SORT_VALUE = "desc";
 
-
     public static final String PAGE_PAGE = "page";
     public static final String PAGE_TOTAL_COUNT = "pageCount";
     public static final String PAGE_CURRENT_NUMBER = "pageNumber";
