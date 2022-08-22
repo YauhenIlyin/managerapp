@@ -9,10 +9,16 @@ import by.ilyin.manager.util.validator.impl.ProjectRequestValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 
 @Controller
@@ -22,6 +28,14 @@ public class ManagerAppController {
     private SessionRequestContent sessionRequestContent;
     private ProjectFindAllCommand projectFindAllCommand;
     private ProjectRequestValidator projectRequestValidator;
+    private AppBaseDataCore appBaseDataCore;
+
+    public ManagerAppController(SessionRequestContent sessionRequestContent, ProjectFindAllCommand projectFindAllCommand, ProjectRequestValidator projectRequestValidator, AppBaseDataCore appBaseDataCore) {
+        this.sessionRequestContent = sessionRequestContent;
+        this.projectFindAllCommand = projectFindAllCommand;
+        this.projectRequestValidator = projectRequestValidator;
+        this.appBaseDataCore = appBaseDataCore;
+    }
 
     @GetMapping("")
     public String projectsPage(Model model, HttpServletRequest request) {
@@ -37,5 +51,24 @@ public class ManagerAppController {
         return "projects";
     }
 
+    @GetMapping("/new")
+    public String projectCreationPage(@ModelAttribute("project") Project project,
+                                      Model model) {
+        basicInitializeProjectModel(model);
+        return "project_creation";
+    }
+
+    
+    private void basicInitializeProjectModel(ModelAndView model) {
+        model.getModel().put("progLangs", appBaseDataCore.getProgrammingLanguageList());
+        model.getModel().put("appServers", appBaseDataCore.getProgrammingLanguageList());
+        model.getModel().put("databases", appBaseDataCore.getProgrammingLanguageList());
+    }
+
+    private void basicInitializeProjectModel(Model model) {
+        model.addAttribute("progLangs", appBaseDataCore.getProgrammingLanguageList());
+        model.addAttribute("appServers", appBaseDataCore.getApplicationServerList());
+        model.addAttribute("databases", appBaseDataCore.getDatabaseList());
+    }
 
 }
