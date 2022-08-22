@@ -6,6 +6,9 @@ import by.ilyin.manager.entity.ProgrammingLanguage;
 import by.ilyin.manager.service.ApplicationServerService;
 import by.ilyin.manager.service.DatabaseService;
 import by.ilyin.manager.service.ProgrammingLanguageService;
+import by.ilyin.manager.util.observer.impl.AppServerRepositoryObserver;
+import by.ilyin.manager.util.observer.impl.DatabaseRepositoryObserver;
+import by.ilyin.manager.util.observer.impl.ProgLangRepositoryObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +35,7 @@ public class AppBaseDataCore {
         this.databaseList = databaseService.findAll();
         this.programmingLanguageList = programmingLanguageService.findAll();
         this.applicationServerList = applicationServerService.findAll();
+        attachObservers();
     }
 
     public List<Database> getDatabaseList() {
@@ -56,5 +60,17 @@ public class AppBaseDataCore {
 
     public void setApplicationServerList(List<ApplicationServer> applicationServerList) {
         this.applicationServerList = applicationServerList;
+    }
+
+    public void attachObservers() {
+        applicationServerService.attach(new AppServerRepositoryObserver(this));
+        programmingLanguageService.attach(new ProgLangRepositoryObserver(this));
+        databaseService.attach(new DatabaseRepositoryObserver(this));
+    }
+
+    public void detachObservers() {
+        applicationServerService.detach();
+        programmingLanguageService.detach();
+        databaseService.detach();
     }
 }
