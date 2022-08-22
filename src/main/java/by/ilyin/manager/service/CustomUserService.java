@@ -6,9 +6,9 @@ import java.util.Optional;
 
 public interface CustomUserService {
 
-    public void save(User user);
+    void save(User user);
 
-    public Optional<User> findByUsername(String username);
+    Optional<User> findByUsername(String username);
 
-    public Optional<User> findById(Long id);
+    Optional<User> findById(Long id);
 }

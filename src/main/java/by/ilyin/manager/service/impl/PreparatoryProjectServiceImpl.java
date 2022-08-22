@@ -32,7 +32,6 @@ public class PreparatoryProjectServiceImpl implements PreparatoryProjectService 
             String databaseIndex = params.get(KeyWordFilterProcess.PROJECT_DATABASE_FILTER_NAME);
             String employeeCount = params.get(KeyWordFilterProcess.PROJECT_EMPLOYEE_COUNT_FILTER_NAME);
             String employeeCountOperation = params.get(KeyWordFilterProcess.PROJECT_EMPLOYEE_OPERATION_FILTER_NAME);
-
             boolean conditionContainer = langIndex != null && !langIndex.equals(KeyWordFilterProcess.DEFAULT_EMPTY_VALUE);
             builder = checkAddCriteria(builder, conditionContainer, KeyWordsApp.PROJECT_PROG_LANG_FIELD_NAME, KeyWordFilterProcess.OPERATION_EQUALS,
                     langIndex, appBaseDataCore.getProgrammingLanguageList());
@@ -98,9 +97,6 @@ public class PreparatoryProjectServiceImpl implements PreparatoryProjectService 
     }
 
     private ProjectSpecificationBuilder addCriteria(ProjectSpecificationBuilder builder, String fieldName, String operation, Object value) {
-        System.out.println(operation);
-        System.out.println(fieldName);
-        System.out.println(value);
         SearchCriteria searchCriteria = new SearchCriteria(fieldName, operation, value);
         builder.with(searchCriteria);
         return builder;
