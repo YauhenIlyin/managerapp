@@ -76,14 +76,9 @@ public class ManagerAppController {
         System.out.println(bindingResult.hasErrors());
         if (bindingResult.hasErrors()) {
             mav = new ModelAndView("projects/new");
-            basicInitializeProjectModel(mav);
+//            basicInitializeProjectModel(mav);
             mav.addObject("project", project);
             mav.setViewName("project_creation");
-            basicInitializeProjectModel(mav);
-//            mav.getModel().put("progLangs", appBaseDataCore.getProgrammingLanguageList());
-//            mav.getModel().put("appServers", appBaseDataCore.getApplicationServerList());
-//            mav.getModel().put("databases", appBaseDataCore.getDatabaseList());
-
         } else {
             System.out.println(2);
             HashMap<String, Object> attributes = new HashMap<>();
@@ -91,8 +86,8 @@ public class ManagerAppController {
             sessionRequestContent.setRequestAttributes(attributes);
             projectCreateCommand.execute(sessionRequestContent);
             mav = new ModelAndView("redirect:/projects");
-            basicInitializeProjectModel(mav);
         }
+        basicInitializeProjectModel(mav);
         return mav;
     }
 
