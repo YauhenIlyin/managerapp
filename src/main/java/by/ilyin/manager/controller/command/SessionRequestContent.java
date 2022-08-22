@@ -1,9 +1,13 @@
 package by.ilyin.manager.controller.command;
 
+import by.ilyin.manager.evidence.KeyWordsApp;
 import by.ilyin.manager.evidence.KeyWordsRequest;
+import by.ilyin.manager.exception.ManagerAppAuthException;
+import by.ilyin.manager.repository.specification.ProjectSpecificationBuilder;
 import by.ilyin.manager.security.AuthDataManager;
 import by.ilyin.manager.util.AppBaseDataCore;
 import by.ilyin.manager.util.validator.RequestValidator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.data.domain.PageRequest;
@@ -22,15 +26,24 @@ public class SessionRequestContent {
 
     private final AppBaseDataCore appBaseDataCore;
     private final AuthDataManager authDataManager;
+
     private HashMap<String, String> requestParameters;
     private HashMap<String, Object> requestAttributes;
     private Pageable pageable;
     private boolean isSuccessfulResult = false;
     private boolean isFiltering = false;
+    private String currentRole;
+    private ProjectSpecificationBuilder projectSpecificationBuilder;
 
-    public SessionRequestContent(AppBaseDataCore appBaseDataCore, AuthDataManager authDataManager) {
+    @Autowired
+    public SessionRequestContent(AppBaseDataCore appBaseDataCore, AuthDataManager authDataManager,
+                                 ProjectSpecificationBuilder projectSpecificationBuilder) {
         this.appBaseDataCore = appBaseDataCore;
         this.authDataManager = authDataManager;
+        this.projectSpecificationBuilder = projectSpecificationBuilder;
+        this.requestParameters = new HashMap<>();
+        this.requestAttributes = new HashMap<>();
+        this.pageable = PageRequest.of((int) KeyWordsRequest.PAGE_DEFAULT_CURRENT_NUMBER, (int) KeyWordsRequest.PAGE_DEFAULT_COUNT_ITEMS_ON_ONE);
     }
 
     public AppBaseDataCore getAppBaseDataCore() {
@@ -81,6 +94,22 @@ public class SessionRequestContent {
         isFiltering = filtering;
     }
 
+    public String getCurrentRole() {
+        return currentRole;
+    }
+
+    public void setCurrentRole(String currentRole) {
+        this.currentRole = currentRole;
+    }
+
+    public ProjectSpecificationBuilder getProjectSpecificationBuilder() {
+        return projectSpecificationBuilder;
+    }
+
+    public void setProjectSpecificationBuilder(ProjectSpecificationBuilder projectSpecificationBuilder) {
+        this.projectSpecificationBuilder = projectSpecificationBuilder;
+    }
+
     public void initialize(HttpServletRequest request) {
         String isFilteringParam = request.getParameter("isFiltering");
         if (isFilteringParam != null && isFilteringParam.equals("true")) {
@@ -100,13 +129,17 @@ public class SessionRequestContent {
             keyWord = iterator.next();
             requestAttributes.put(keyWord, request.getAttribute(keyWord));
         }
+        try {
+            currentRole = authDataManager.getCurrentUserRole();
+        } catch (ManagerAppAuthException e) {
+            //todo log
+            currentRole = KeyWordsApp.ROLE_USER_VALUE;
+        }
     }
 
     public void initializePage(HttpServletRequest request, RequestValidator requestValidator) {
         String currentPageNumberStr = request.getParameter(KeyWordsRequest.PAGE_CURRENT_NUMBER);
-        System.out.println("current page number: " + currentPageNumberStr);
         String itemsOnPageStr = request.getParameter(KeyWordsRequest.PAGE_ITEMS_COUNT_ON_ONE);
-        System.out.println("current items count: " + itemsOnPageStr);
         String sortTypeStr = request.getParameter(KeyWordsRequest.SORT_TYPE);
         String sortFieldStr = request.getParameter(KeyWordsRequest.SORT_SORT_FIELD);
         long currentPageNumberValue;
@@ -140,6 +173,5 @@ public class SessionRequestContent {
         }
         return currentValue < 1 ? 1 : currentValue;
     }
-
 
 }
