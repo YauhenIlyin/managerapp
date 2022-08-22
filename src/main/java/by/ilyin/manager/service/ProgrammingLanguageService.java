@@ -8,12 +8,12 @@ import java.util.Optional;
 
 public interface ProgrammingLanguageService extends Observable {
 
-    public Optional<ProgrammingLanguage> findByLanguageName(String languageName);
+    Optional<ProgrammingLanguage> findByLanguageName(String languageName);
 
-    public Optional<ProgrammingLanguage> findById(Long id);
+    Optional<ProgrammingLanguage> findById(Long id);
 
-    public List<ProgrammingLanguage> findAll();
+    List<ProgrammingLanguage> findAll();
 
-    public void save(ProgrammingLanguage programmingLanguage);
+    void save(ProgrammingLanguage programmingLanguage);
 
 }

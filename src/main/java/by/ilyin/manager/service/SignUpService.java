@@ -4,10 +4,10 @@ import by.ilyin.manager.entity.User;
 
 public interface SignUpService {
 
-    public void register(User user);
+    void register(User user);
 
-    public Boolean isExistUserByUsername(String username);
+    Boolean isExistUserByUsername(String username);
 
-    public Boolean isExistUserByEmail(String email);
+    Boolean isExistUserByEmail(String email);
 
 }

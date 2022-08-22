@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 public class SignUpServiceImpl implements SignUpService {
     @Override
     public void register(User user) {
-
     }
 
     @Override

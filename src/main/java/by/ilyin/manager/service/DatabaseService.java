@@ -8,12 +8,12 @@ import java.util.Optional;
 
 public interface DatabaseService extends Observable {
 
-    public Optional<Database> findByName(String databaseName);
+    Optional<Database> findByName(String databaseName);
 
-    public Optional<Database> findById(Long id);
+    Optional<Database> findById(Long id);
 
-    public List<Database> findAll();
+    List<Database> findAll();
 
-    public void save(Database database);
+    void save(Database database);
 
 }

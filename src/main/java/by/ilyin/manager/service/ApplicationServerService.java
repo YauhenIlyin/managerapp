@@ -10,10 +10,10 @@ public interface ApplicationServerService extends Observable {
 
     Optional<ApplicationServer> findByServerName(String serverName);
 
-    public Optional<ApplicationServer> findById(Long id);
+    Optional<ApplicationServer> findById(Long id);
 
-    public List<ApplicationServer> findAll();
+    List<ApplicationServer> findAll();
 
-    public void save(ApplicationServer applicationServer);
+    void save(ApplicationServer applicationServer);
 
 }
