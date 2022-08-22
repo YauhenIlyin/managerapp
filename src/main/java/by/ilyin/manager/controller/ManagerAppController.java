@@ -3,7 +3,9 @@ package by.ilyin.manager.controller;
 import by.ilyin.manager.controller.command.SessionRequestContent;
 import by.ilyin.manager.controller.command.project.ProjectCreateCommand;
 import by.ilyin.manager.controller.command.project.ProjectFindAllCommand;
+import by.ilyin.manager.controller.command.project.ProjectFindByIdCommand;
 import by.ilyin.manager.entity.Project;
+import by.ilyin.manager.evidence.KeyWordsApp;
 import by.ilyin.manager.evidence.KeyWordsRequest;
 import by.ilyin.manager.util.AppBaseDataCore;
 import by.ilyin.manager.util.validator.impl.ProjectRequestValidator;
@@ -12,10 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,18 +31,21 @@ public class ManagerAppController {
     private ProjectRequestValidator projectRequestValidator;
     private AppBaseDataCore appBaseDataCore;
     private ProjectCreateCommand projectCreateCommand;
+    private ProjectFindByIdCommand projectFindByIdCommand;
 
     @Autowired
     public ManagerAppController(SessionRequestContent sessionRequestContent,
                                 ProjectFindAllCommand projectFindAllCommand,
                                 ProjectRequestValidator projectRequestValidator,
                                 AppBaseDataCore appBaseDataCore,
-                                ProjectCreateCommand projectCreateCommand) {
+                                ProjectCreateCommand projectCreateCommand,
+                                ProjectFindByIdCommand projectFindByIdCommand) {
         this.sessionRequestContent = sessionRequestContent;
         this.projectFindAllCommand = projectFindAllCommand;
         this.projectRequestValidator = projectRequestValidator;
         this.appBaseDataCore = appBaseDataCore;
         this.projectCreateCommand = projectCreateCommand;
+        this.projectFindByIdCommand = projectFindByIdCommand;
     }
 
     @GetMapping("")
@@ -73,7 +75,6 @@ public class ManagerAppController {
                                       BindingResult bindingResult) {
         basicInitializeProjectModel(model);
         ModelAndView mav;
-        System.out.println(bindingResult.hasErrors());
         if (bindingResult.hasErrors()) {
             mav = new ModelAndView("projects/new");
 //            basicInitializeProjectModel(mav);
@@ -89,6 +90,40 @@ public class ManagerAppController {
         }
         basicInitializeProjectModel(mav);
         return mav;
+    }
+
+    @GetMapping("/{id}")
+    public String show(@PathVariable("id") int id,
+                       @ModelAttribute("project") Project project,
+                       Model model) {
+        sessionRequestContent.setFiltering(true);
+        sessionRequestContent.getRequestParameters().put(KeyWordsApp.PROJECT_ID_FIELD_NAME, "" + id);
+        projectFindByIdCommand.execute(sessionRequestContent);
+        String resultPage = "redirect:/projects";
+        if (sessionRequestContent.isSuccessfulResult()) {
+            project = (Project) sessionRequestContent.getRequestAttributes().get(KeyWordsRequest.PROJECT);
+            model.addAttribute(KeyWordsRequest.PROJECT, project);
+            resultPage = "project_by_id";
+        }
+        return resultPage;
+    }
+
+    @GetMapping("/{id}/edit")
+    public String editProject(@PathVariable("id") long id,
+                              @ModelAttribute("project") Project project,
+                              Model model) {
+        sessionRequestContent.getRequestParameters().put(KeyWordsApp.PROJECT_ID_FIELD_NAME, "" + id);
+        projectFindByIdCommand.execute(sessionRequestContent);
+        String resultPage;
+        if (sessionRequestContent.isSuccessfulResult()) {
+            project = (Project) sessionRequestContent.getRequestAttributes().get(KeyWordsRequest.PROJECT);
+            model.addAttribute(KeyWordsRequest.PROJECT, project);
+            resultPage = "project_by_id_edit";
+        } else {
+            resultPage = "projects";
+        }
+        basicInitializeProjectModel(model);
+        return resultPage;
     }
 
 
