@@ -2,6 +2,7 @@ package by.ilyin.manager.controller;
 
 import by.ilyin.manager.controller.command.SessionRequestContent;
 import by.ilyin.manager.controller.command.project.*;
+import by.ilyin.manager.controller.command.task.TaskCreateCommand;
 import by.ilyin.manager.controller.command.task.TaskFindAllCommand;
 import by.ilyin.manager.entity.Project;
 import by.ilyin.manager.entity.Task;
@@ -39,18 +40,33 @@ public class ManagerAppController {
     private ProjectUpdateCommand projectUpdateCommand;
     private ProjectDeleteCommand projectDeleteCommand;
     private TaskFindAllCommand taskFindAllCommand;
+    private TaskCreateCommand taskCreateCommand;
 
     @Autowired
-    public ManagerAppController(AppBaseDataCore appBaseDataCore, SessionRequestContent sessionRequestContent, ProjectRequestValidator projectRequestValidator, ProjectEntityValidator projectEntityValidator, ProjectFindAllCommand projectFindAllCommand, ProjectCreateCommand projectCreateCommand, ProjectFindByIdCommand projectFindByIdCommand, ProjectUpdateCommand projectUpdateCommand, ProjectDeleteCommand projectDeleteCommand) {
+    public ManagerAppController(AppBaseDataCore appBaseDataCore,
+                                SessionRequestContent sessionRequestContent,
+                                ProjectRequestValidator projectRequestValidator,
+                                ProjectEntityValidator projectEntityValidator,
+                                TaskEntityValidator taskEntityValidator,
+                                ProjectFindAllCommand projectFindAllCommand,
+                                ProjectCreateCommand projectCreateCommand,
+                                ProjectFindByIdCommand projectFindByIdCommand,
+                                ProjectUpdateCommand projectUpdateCommand,
+                                ProjectDeleteCommand projectDeleteCommand,
+                                TaskFindAllCommand taskFindAllCommand,
+                                TaskCreateCommand taskCreateCommand) {
         this.appBaseDataCore = appBaseDataCore;
         this.sessionRequestContent = sessionRequestContent;
         this.projectRequestValidator = projectRequestValidator;
         this.projectEntityValidator = projectEntityValidator;
+        this.taskEntityValidator = taskEntityValidator;
         this.projectFindAllCommand = projectFindAllCommand;
         this.projectCreateCommand = projectCreateCommand;
         this.projectFindByIdCommand = projectFindByIdCommand;
         this.projectUpdateCommand = projectUpdateCommand;
         this.projectDeleteCommand = projectDeleteCommand;
+        this.taskFindAllCommand = taskFindAllCommand;
+        this.taskCreateCommand = taskCreateCommand;
     }
 
     @GetMapping("")
@@ -227,7 +243,7 @@ public class ManagerAppController {
             mav = new ModelAndView("projects/{projectId}/tasks/new");
             mav.addObject("task", task);
             mav.addObject("projectId", projectId);
-            mav.setViewName("tasks/task.creation");
+            mav.setViewName("tasks/task_creation");
             System.out.println("error");
         } else {
             mav = new ModelAndView("redirect:/projects/{projectId}/tasks");

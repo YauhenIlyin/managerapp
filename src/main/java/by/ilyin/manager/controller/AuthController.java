@@ -40,7 +40,6 @@ public class AuthController {
             signUpService.register(user);
             resultPage = "redirect:/auth/signin";
         }
-        System.out.println(resultPage);
         return resultPage;
     }
 
