@@ -21,10 +21,6 @@ public class ProjectSpecification implements Specification<Project> {
     public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
         Predicate predicate;
         String criteriaOperation = criteria.getOperation();
-        System.out.println("criteria operation: " + criteriaOperation);
-        System.out.println("more: " + criteriaOperation.equals(KeyWordFilterProcess.OPERATION_MORE));
-        System.out.println("less: " + criteriaOperation.equals(KeyWordFilterProcess.OPERATION_LESS));
-        System.out.println("equals: " + criteriaOperation.equals(KeyWordFilterProcess.OPERATION_EQUALS));
         switch (criteriaOperation) {
             case KeyWordFilterProcess.OPERATION_MORE:
                 predicate = builder.greaterThanOrEqualTo(
