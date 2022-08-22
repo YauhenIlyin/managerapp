@@ -8,6 +8,7 @@ import by.ilyin.manager.util.observer.impl.AppServerRepositoryEvent;
 import by.ilyin.manager.util.observer.impl.AppServerRepositoryObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +39,7 @@ public class ApplicationServerServiceImpl implements ApplicationServerService {
         return applicationServerRepository.findAll();
     }
 
+    @Transactional
     @Override
     public void save(ApplicationServer applicationServer) {
         applicationServerRepository.save(applicationServer);

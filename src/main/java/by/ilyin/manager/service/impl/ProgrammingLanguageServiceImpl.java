@@ -8,6 +8,7 @@ import by.ilyin.manager.util.observer.impl.ProgLangRepositoryObserver;
 import by.ilyin.manager.util.observer.impl.ProgramLangRepositoryEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +39,7 @@ public class ProgrammingLanguageServiceImpl implements ProgrammingLanguageServic
         return programmingLanguageRepository.findAll();
     }
 
+    @Transactional
     @Override
     public void save(ProgrammingLanguage programmingLanguage) {
         programmingLanguageRepository.save(programmingLanguage);
