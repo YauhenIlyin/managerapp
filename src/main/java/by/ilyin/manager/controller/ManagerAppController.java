@@ -1,13 +1,12 @@
 package by.ilyin.manager.controller;
 
 import by.ilyin.manager.controller.command.SessionRequestContent;
-import by.ilyin.manager.controller.command.project.ProjectCreateCommand;
-import by.ilyin.manager.controller.command.project.ProjectFindAllCommand;
-import by.ilyin.manager.controller.command.project.ProjectFindByIdCommand;
+import by.ilyin.manager.controller.command.project.*;
 import by.ilyin.manager.entity.Project;
 import by.ilyin.manager.evidence.KeyWordsApp;
 import by.ilyin.manager.evidence.KeyWordsRequest;
 import by.ilyin.manager.util.AppBaseDataCore;
+import by.ilyin.manager.util.validator.ProjectEntityValidator;
 import by.ilyin.manager.util.validator.impl.ProjectRequestValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,26 +25,27 @@ import java.util.List;
 @RequestMapping("/projects")
 public class ManagerAppController {
 
-    private SessionRequestContent sessionRequestContent;
-    private ProjectFindAllCommand projectFindAllCommand;
-    private ProjectRequestValidator projectRequestValidator;
     private AppBaseDataCore appBaseDataCore;
+    private SessionRequestContent sessionRequestContent;
+    private ProjectRequestValidator projectRequestValidator;
+    private ProjectEntityValidator projectEntityValidator;
+    private ProjectFindAllCommand projectFindAllCommand;
     private ProjectCreateCommand projectCreateCommand;
     private ProjectFindByIdCommand projectFindByIdCommand;
+    private ProjectUpdateCommand projectUpdateCommand;
+    private ProjectDeleteCommand projectDeleteCommand;
 
     @Autowired
-    public ManagerAppController(SessionRequestContent sessionRequestContent,
-                                ProjectFindAllCommand projectFindAllCommand,
-                                ProjectRequestValidator projectRequestValidator,
-                                AppBaseDataCore appBaseDataCore,
-                                ProjectCreateCommand projectCreateCommand,
-                                ProjectFindByIdCommand projectFindByIdCommand) {
-        this.sessionRequestContent = sessionRequestContent;
-        this.projectFindAllCommand = projectFindAllCommand;
-        this.projectRequestValidator = projectRequestValidator;
+    public ManagerAppController(AppBaseDataCore appBaseDataCore, SessionRequestContent sessionRequestContent, ProjectRequestValidator projectRequestValidator, ProjectEntityValidator projectEntityValidator, ProjectFindAllCommand projectFindAllCommand, ProjectCreateCommand projectCreateCommand, ProjectFindByIdCommand projectFindByIdCommand, ProjectUpdateCommand projectUpdateCommand, ProjectDeleteCommand projectDeleteCommand) {
         this.appBaseDataCore = appBaseDataCore;
+        this.sessionRequestContent = sessionRequestContent;
+        this.projectRequestValidator = projectRequestValidator;
+        this.projectEntityValidator = projectEntityValidator;
+        this.projectFindAllCommand = projectFindAllCommand;
         this.projectCreateCommand = projectCreateCommand;
         this.projectFindByIdCommand = projectFindByIdCommand;
+        this.projectUpdateCommand = projectUpdateCommand;
+        this.projectDeleteCommand = projectDeleteCommand;
     }
 
     @GetMapping("")
@@ -124,6 +124,53 @@ public class ManagerAppController {
         }
         basicInitializeProjectModel(model);
         return resultPage;
+    }
+
+    @PatchMapping("/{id}")
+    public String updateProject(@PathVariable("id") long id,
+                                @ModelAttribute("project") Project project,
+                                Model model,
+                                BindingResult bindingResult) {
+        projectEntityValidator.validate(project, bindingResult);
+        String resultPage = null;
+        sessionRequestContent.getRequestParameters().put(KeyWordsApp.PROJECT_ID_FIELD_NAME, "" + id);
+        if (bindingResult.hasErrors()) {
+            projectFindByIdCommand.execute(sessionRequestContent);
+            if (sessionRequestContent.isSuccessfulResult()) {
+//                Project mainProject = (Project) sessionRequestContent.getRequestAttributes().get(KeyWordsRequest.PROJECT);
+                model.addAttribute(KeyWordsRequest.PROJECT, project);
+                resultPage = "project_by_id_edit";
+            }
+        } else {
+            project.setId(id);
+            sessionRequestContent.getRequestAttributes().put(KeyWordsRequest.PROJECT, project);
+            projectUpdateCommand.execute(sessionRequestContent);
+            if (sessionRequestContent.isSuccessfulResult()) {
+                sessionRequestContent.getRequestParameters().put(KeyWordsApp.PROJECT_ID_FIELD_NAME, "" + id);
+                projectFindByIdCommand.execute(sessionRequestContent);
+                project = (Project) sessionRequestContent.getRequestAttributes().get(KeyWordsRequest.PROJECT);
+                model.addAttribute(KeyWordsRequest.PROJECT, project);
+            }
+            resultPage = "redirect:/projects/{id}";
+        }
+        basicInitializeProjectModel(model);
+        return resultPage;
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteProject(@PathVariable("id") long id,
+                                @ModelAttribute("project") Project project,
+                                Model model,
+                                BindingResult bindingResult) {
+        String pageResult = "redirect:/projects";
+        if (project != null) {
+            sessionRequestContent.getRequestParameters().put(KeyWordsApp.PROJECT_ID_FIELD_NAME, "" + id);
+            projectFindByIdCommand.execute(sessionRequestContent);
+            if (sessionRequestContent.isSuccessfulResult()) {
+                projectDeleteCommand.execute(sessionRequestContent); //todo  проверить тот ли проект внутри
+            }
+        }
+        return pageResult;
     }
 
 
