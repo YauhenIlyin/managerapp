@@ -201,6 +201,50 @@ public class ManagerAppController {
         return resultPage;
     }
 
+    @GetMapping("{projectId}/tasks/new")
+    public String projectCreationPage(@PathVariable("projectId") long projectId,
+                                      @ModelAttribute Task task,
+                                      Model model) {
+        String resultPage = "redirect:/projects";
+        sessionRequestContent.setFiltering(true);
+        sessionRequestContent.getRequestParameters().put(KeyWordsApp.PROJECT_ID_FIELD_NAME, "" + projectId);
+        projectFindByIdCommand.execute(sessionRequestContent);
+        if (sessionRequestContent.isSuccessfulResult()) {
+            model.addAttribute(KeyWordsRequest.PROJECT_ID, (Long) projectId);
+            resultPage = "/tasks/task_creation";
+        }
+        return resultPage;
+    }
+
+    @PostMapping("{projectId}/tasks")
+    public ModelAndView projectCreationPage(@PathVariable("projectId") long projectId,
+                                            @ModelAttribute("task") @Valid Task task,
+                                            Model model,
+                                            BindingResult bindingResult) {
+        ModelAndView mav = null;
+        sessionRequestContent.setFiltering(true);
+        if (bindingResult.hasErrors()) {
+            mav = new ModelAndView("projects/{projectId}/tasks/new");
+            mav.addObject("task", task);
+            mav.addObject("projectId", projectId);
+            mav.setViewName("tasks/task.creation");
+            System.out.println("error");
+        } else {
+            mav = new ModelAndView("redirect:/projects/{projectId}/tasks");
+            sessionRequestContent.getRequestParameters().put(KeyWordsApp.PROJECT_ID_FIELD_NAME, "" + projectId);
+            projectFindByIdCommand.execute(sessionRequestContent);
+            if (sessionRequestContent.isSuccessfulResult()) {
+                Project project = (Project) sessionRequestContent.getRequestAttributes().get(KeyWordsRequest.PROJECT);
+                task.setProject(project);
+                sessionRequestContent.getRequestAttributes().put(KeyWordsRequest.TASK, task);
+                sessionRequestContent.setSuccessfulResult(Boolean.FALSE);
+                taskCreateCommand.execute(sessionRequestContent);
+            }
+        }
+        model.addAttribute(KeyWordsRequest.TASK, task);
+        return mav;
+    }
+
 
     private void basicInitializeProjectModel(ModelAndView model) {
         model.getModel().put("progLangs", appBaseDataCore.getProgrammingLanguageList());
